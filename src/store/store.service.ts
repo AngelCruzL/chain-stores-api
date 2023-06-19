@@ -10,6 +10,7 @@ import { isValidObjectId, Model } from 'mongoose';
 import { Store } from './entities/store.entity';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class StoreService {
@@ -31,7 +32,13 @@ export class StoreService {
   }
 
   findAll() {
-    return `This action returns all store`;
+    return this.storeModel.find();
+  }
+
+  findPaginated(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    return this.storeModel.find().skip(offset).limit(limit);
   }
 
   async findOne(searchTerm: string) {

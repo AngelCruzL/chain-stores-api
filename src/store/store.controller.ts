@@ -6,10 +6,12 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('store')
 export class StoreController {
@@ -20,9 +22,14 @@ export class StoreController {
     return this.storeService.create(createStoreDto);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.storeService.findAll();
+  }
+
+  @Get()
+  findAllPaginated(@Query() paginationDto: PaginationDto) {
+    return this.storeService.findPaginated(paginationDto);
   }
 
   @Get(':searchTerm')
