@@ -6,13 +6,11 @@ export class Store extends Document {
   @Prop({
     index: true,
     unique: true,
-    required: true,
   })
   name: string;
 
   @Prop({
     unique: true,
-    required: true,
   })
   address: string;
 

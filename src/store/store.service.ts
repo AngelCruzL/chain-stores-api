@@ -26,13 +26,7 @@ export class StoreService {
       const store = await this.storeModel.create(createStoreDto);
       return store;
     } catch (error) {
-      if (error.code === 11000)
-        throw new BadRequestException(
-          `Store already exists ${JSON.stringify(error.keyValue)}`,
-        );
-
-      console.log(error);
-      throw new InternalServerErrorException(`Error creating store`);
+      this.#handleExceptions(error);
     }
   }
 
@@ -56,11 +50,38 @@ export class StoreService {
     return store;
   }
 
-  update(id: number, updateStoreDto: UpdateStoreDto) {
-    return `This action updates a #${id} store`;
+  async update(id: string, updateStoreDto: UpdateStoreDto) {
+    try {
+      if (updateStoreDto.name)
+        updateStoreDto.name = updateStoreDto.name.toLowerCase();
+
+      if (updateStoreDto.address)
+        updateStoreDto.address = updateStoreDto.address.toLowerCase();
+
+      const storeUpdated = await this.storeModel.findByIdAndUpdate(
+        id,
+        updateStoreDto,
+        { new: true },
+      );
+
+      return storeUpdated;
+    } catch (error) {
+      this.#handleExceptions(error);
+    }
   }
 
   remove(id: number) {
     return `This action removes a #${id} store`;
+  }
+
+  #handleExceptions(error: any) {
+    if (error.code === 11000) {
+      throw new BadRequestException(
+        `Store already exists ${JSON.stringify(error.keyValue)}`,
+      );
+    }
+
+    console.log(error);
+    throw new InternalServerErrorException(`Error creating store`);
   }
 }
