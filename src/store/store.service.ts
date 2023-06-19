@@ -2,9 +2,10 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 
 import { Store } from './entities/store.entity';
 import { CreateStoreDto } from './dto/create-store.dto';
@@ -18,6 +19,9 @@ export class StoreService {
   ) {}
 
   async create(createStoreDto: CreateStoreDto) {
+    createStoreDto.name = createStoreDto.name.toLowerCase();
+    createStoreDto.address = createStoreDto.address.toLowerCase();
+
     try {
       const store = await this.storeModel.create(createStoreDto);
       return store;
@@ -36,8 +40,20 @@ export class StoreService {
     return `This action returns all store`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} store`;
+  async findOne(searchTerm: string) {
+    let store: Store;
+
+    if (isValidObjectId(searchTerm))
+      store = await this.storeModel.findById(searchTerm);
+
+    if (!store) store = await this.storeModel.findOne({ name: searchTerm });
+
+    if (!store) store = await this.storeModel.findOne({ address: searchTerm });
+
+    if (!store)
+      throw new NotFoundException(`Store not found with "${searchTerm}" term`);
+
+    return store;
   }
 
   update(id: number, updateStoreDto: UpdateStoreDto) {
