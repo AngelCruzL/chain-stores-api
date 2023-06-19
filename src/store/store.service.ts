@@ -70,8 +70,13 @@ export class StoreService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} store`;
+  async remove(id: string) {
+    const { deletedCount } = await this.storeModel.deleteOne({ _id: id });
+
+    if (deletedCount === 0)
+      throw new NotFoundException(`Store not found with id ${id}`);
+
+    return;
   }
 
   #handleExceptions(error: any) {

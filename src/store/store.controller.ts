@@ -37,6 +37,6 @@ export class StoreController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.storeService.remove(+id);
+    return this.storeService.remove(id);
   }
 }
