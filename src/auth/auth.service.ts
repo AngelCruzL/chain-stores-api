@@ -4,18 +4,21 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcryptjs';
 
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
+import { JwtPayload, UserLoginResponse } from './types';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -42,7 +45,7 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto): Promise<User> {
+  async login(loginDto: LoginDto): Promise<UserLoginResponse> {
     const { email, password } = loginDto;
 
     const user = await this.userModel.findOne({ email });
@@ -53,6 +56,13 @@ export class AuthService {
 
     const { password: _, ...userData } = user.toObject();
 
-    return userData;
+    return {
+      user: userData,
+      token: this.getJWT({ id: user.id }),
+    };
+  }
+
+  getJWT(payload: JwtPayload): string {
+    return this.jwtService.sign(payload);
   }
 }
