@@ -9,6 +9,7 @@ import { Model } from 'mongoose';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,5 +40,19 @@ export class AuthService {
 
       throw new InternalServerErrorException('Something went wrong');
     }
+  }
+
+  async login(loginDto: LoginDto): Promise<User> {
+    const { email, password } = loginDto;
+
+    const user = await this.userModel.findOne({ email });
+    if (!user) throw new BadRequestException('Invalid credentials');
+
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
+    if (!isPasswordValid) throw new BadRequestException('Invalid credentials');
+
+    const { password: _, ...userData } = user.toObject();
+
+    return userData;
   }
 }
