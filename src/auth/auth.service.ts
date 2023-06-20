@@ -11,7 +11,7 @@ import * as bcrypt from 'bcryptjs';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
-import { JwtPayload, UserLoginResponse } from './types';
+import { JwtPayload, UserLoginResponse, UserRegisterResponse } from './types';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<UserRegisterResponse> {
     try {
       const { password, ...userData } = createUserDto;
 
@@ -34,7 +34,10 @@ export class AuthService {
 
       const { password: _, ...user } = newUser.toObject();
 
-      return user;
+      return {
+        user,
+        token: this.#getJWT({ id: newUser.id }),
+      };
     } catch (error) {
       if (error.code === 11000)
         throw new BadRequestException(
@@ -58,11 +61,11 @@ export class AuthService {
 
     return {
       user: userData,
-      token: this.getJWT({ id: user.id }),
+      token: this.#getJWT({ id: user.id }),
     };
   }
 
-  getJWT(payload: JwtPayload): string {
+  #getJWT(payload: JwtPayload): string {
     return this.jwtService.sign(payload);
   }
 }
