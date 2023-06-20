@@ -6,6 +6,7 @@ import { StoreModule } from './store/store.module';
 import { JoiValidationSchema } from './config/joi-validation';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     StoreModule,
     CommonModule,
     AuthModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],
