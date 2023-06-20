@@ -24,5 +24,6 @@ import { User, UserSchema } from './entities/user.entity';
       signOptions: { expiresIn: '6h' },
     }),
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

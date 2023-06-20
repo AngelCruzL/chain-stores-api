@@ -36,7 +36,7 @@ export class AuthService {
 
       return {
         user,
-        token: this.#getJWT({ id: newUser.id }),
+        token: this.getJWT({ id: newUser.id }),
       };
     } catch (error) {
       if (error.code === 11000)
@@ -61,11 +61,17 @@ export class AuthService {
 
     return {
       user: userData,
-      token: this.#getJWT({ id: user.id }),
+      token: this.getJWT({ id: user.id }),
     };
   }
 
-  #getJWT(payload: JwtPayload): string {
+  async findUserById(id: string): Promise<User> {
+    const user = await this.userModel.findById(id);
+    const { password, ...userData } = user.toObject();
+    return userData;
+  }
+
+  getJWT(payload: JwtPayload): string {
     return this.jwtService.sign(payload);
   }
 }
