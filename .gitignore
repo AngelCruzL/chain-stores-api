@@ -36,3 +36,6 @@ lerna-debug.log*
 
 mongo
 .env
+
+static/uploads/*.jpg
+static/uploads/*.png
