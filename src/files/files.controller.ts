@@ -6,6 +6,7 @@ import {
   Post,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -15,7 +16,10 @@ import { diskStorage } from 'multer';
 
 import { FilesService } from './files.service';
 import { fileFilter, fileNamer } from './helpers';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
+@ApiTags('Files')
 @Controller('files')
 export class FilesController {
   constructor(
@@ -24,6 +28,8 @@ export class FilesController {
   ) {}
 
   @Get('store/:imageName')
+  @ApiResponse({ status: 200, description: 'The image has been found' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   findStoreImage(@Res() res: Response, @Param('imageName') imageName: string) {
     const path = this.filesService.getStaticStoreImage(imageName);
 
@@ -31,6 +37,13 @@ export class FilesController {
   }
 
   @Post('store')
+  @UseGuards(AuthGuard)
+  @ApiResponse({
+    status: 201,
+    description: 'The image has been uploaded successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: fileFilter,
