@@ -38,4 +38,7 @@ mongo
 .env
 
 static/uploads/*.jpg
+static/uploads/*.jpeg
+static/uploads/*.webp
+static/uploads/*.avif
 static/uploads/*.png
